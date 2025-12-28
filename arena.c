@@ -110,7 +110,8 @@ void* arenaAlloc(arena* ap, size_t size)
 
       if (size > ap->increment_size) {
         region = allocateArenaRegion(size);
-      } else {
+      }
+      else {
         region = allocateArenaRegion(ap->increment_size);
       }
 
@@ -225,8 +226,7 @@ int main(int argc, char* argv[])
   }
 
   arena_stats stats = getArenaStats(ap);
-  printf("Alloc: %ld, Unalloc: %ld, Regions: %ld\n", stats.bytes_allocated,
-         stats.bytes_unallocated, stats.regions);
+  printf("Alloc: %ld, Unalloc: %ld, Regions: %ld\n", stats.bytes_allocated, stats.bytes_unallocated, stats.regions);
 
   printf("realloc Tests\n");
 
@@ -257,8 +257,7 @@ int main(int argc, char* argv[])
   printf("Message: %s\n", message);
 
   stats = getArenaStats(ap);
-  printf("Alloc: %ld, Unalloc: %ld, Regions: %ld\n", stats.bytes_allocated,
-         stats.bytes_unallocated, stats.regions);
+  printf("Alloc: %ld, Unalloc: %ld, Regions: %ld\n", stats.bytes_allocated, stats.bytes_unallocated, stats.regions);
 
   // Really big alloc test (bigger than region increment_size)
 
@@ -267,8 +266,7 @@ int main(int argc, char* argv[])
   assert(big);
 
   stats = getArenaStats(ap);
-  printf("Alloc: %ld, Unalloc: %ld, Regions: %ld\n", stats.bytes_allocated,
-         stats.bytes_unallocated, stats.regions);
+  printf("Alloc: %ld, Unalloc: %ld, Regions: %ld\n", stats.bytes_allocated, stats.bytes_unallocated, stats.regions);
 
   freeArena(ap);
 
