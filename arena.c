@@ -93,17 +93,16 @@ void freeArena(arena* ap)
 
 void* arenaAlloc(arena* ap, size_t size)
 {
-  size_t hdr_size = sizeof(arena_allocation);
   arena_region* current = ap->first;
 
-  size = size + hdr_size;
+  size = size + sizeof(arena_allocation);
 
   while (current) {
     if (current->current + size <= current->end) {
       arena_allocation* allocation = current->current;
-      allocation->size = size - hdr_size;
+      allocation->size = size - sizeof(arena_allocation);
       current->current += size;
-      return ((void*)allocation) + hdr_size;
+      return allocation->data;
     }
     if (!current->next) {
       arena_region* region;
@@ -167,12 +166,11 @@ void* arenaRealloc(arena* ap, void* ptr, size_t new_size)
   */
 
   // Can we just extend the allocation?
-  size_t hdr_size = sizeof(arena_allocation);
-  if ((void*)allocation + hdr_size + size == region->current) {
-    if ((void*)allocation + hdr_size + new_size <= region->end) {
+  if ((void*)allocation->data + size == region->current) {
+    if ((void*)allocation->data + new_size <= region->end) {
       allocation->size = new_size;
       region->current = ((void*)allocation) + new_size;
-      return ((void*)allocation + sizeof(arena_allocation));
+      return allocation->data;
     }
   }
 
