@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "arena.h"
 
@@ -34,7 +35,9 @@ arena_region* allocateArenaRegion(size_t size)
   return region;
 }
 
-arena* allocateArena(size_t initial_size, size_t increment_size)
+arena* allocateArena(size_t initial_size,
+                     size_t increment_size,
+                     bool enable_sentinals)
 {
   arena* ap = malloc(sizeof(arena));
   if (!ap) {
@@ -46,6 +49,19 @@ arena* allocateArena(size_t initial_size, size_t increment_size)
     free(ap);
     return NULL;
   }
+
+  if (enable_sentinals) {
+    ap->sentinal_data = allocateArenaRegion(initial_size);
+    if (!ap->sentinal_data) {
+      free(ap->first);
+      free(ap);
+      return NULL;
+    }
+  }
+  else {
+    ap->sentinal_data = NULL;
+  }
+  ap->sentinals = enable_sentinals;
 
   ap->increment_size = increment_size;
 
@@ -80,6 +96,15 @@ void freeArena(arena* ap)
 {
   arena_region* current = ap->first;
   arena_region* prev;
+
+  while (current) {
+    prev = current;
+    current = current->next;
+
+    free(prev);
+  }
+
+  current = ap->sentinal_data;
 
   while (current) {
     prev = current;
@@ -206,7 +231,8 @@ arena_stats getArenaStats(arena* ap)
 
 int main(int argc, char* argv[])
 {
-  arena* ap = allocateArena(0x1000, 0x2000);
+  int page_size = getpagesize();
+  arena* ap = allocateArena(page_size, page_size * 2, true);
 
   for (int i = 0; i < 101; i++) {
     if (i % 50 == 0) {

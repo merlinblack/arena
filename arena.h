@@ -9,7 +9,9 @@ struct arena_region;
 
 typedef struct arena {
   size_t increment_size;
+  bool sentinals;
   struct arena_region* first;
+  struct arena_region* sentinal_data;
 } arena;
 
 typedef struct arena_stats {
@@ -18,7 +20,9 @@ typedef struct arena_stats {
   size_t bytes_unallocated;
 } arena_stats;
 
-arena* allocateArena(size_t initial_size, size_t increment_size);
+arena* allocateArena(size_t initial_size,
+                     size_t increment_size,
+                     bool enable_sentinals);
 void freeArena(arena* ap);
 void resetArena(arena* ap, bool hard);
 void* arenaAlloc(arena* ap, size_t size);
